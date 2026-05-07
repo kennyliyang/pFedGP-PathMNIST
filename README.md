@@ -23,7 +23,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 # Install dataset tools and repo dependencies
 pip install medmnist tqdm numpy pandas matplotlib
 pip install -e .
-
+```
 2. Download and Prepare Data:
 To generate the PathMNIST dataset in the required 100-client dictionary format:
 
