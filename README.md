@@ -1,15 +1,19 @@
-Personalized Federated Learning with Gaussian Processes (PathMNIST Edition)
-Federated learning aims to learn a global model that performs well on client devices with limited cross-client communication. Personalized federated learning (PFL) further extends this setup to handle data heterogeneity between clients by learning personalized models. A key challenge in this setting is to learn effectively across clients, even though each client has its unique data, which is often limited in size.  
+# Personalized Federated Learning with Gaussian Processes (PathMNIST Edition)
+<p align="center"> 
+    <img src="./resources/pFedGP.png" width="400">
+</p>
 
-Here we put forward a solution to PFL that is based on Gaussian processes (GPs) with deep kernel learning, which we call pFedGP. In this extended project, we specifically adapt and deeply optimize the pFedGP framework for medical pathology image classification using the PathMNIST (MedMNIST) dataset. We provide a unified pipeline to compare pFedGP against classic baselines (FedAvg, FedPer) with automatic dataset inference, and ensure seamless deployment on modern NVIDIA RTX 50-series GPUs (CUDA 12.1+). We find that pFedGP significantly outperforms baseline methods while achieving well-calibrated predictions in the medical domain.  
+Federated learning aims to learn a global model that performs well on client devices with limited cross-client communication. Personalized federated learning (PFL) further extends this setup to handle data heterogeneity between clients by learning personalized models. A key challenge in this setting is to learn effectively across clients, even though each client has its unique data, which is often limited in size. 
 
-[Original Paper]
-[Original Project-Page]
+Here we put forward a solution to PFL that is based on Gaussian processes (GPs) with deep kernel learning, which we call **pFedGP**. In this extended project, we specifically adapt and deeply optimize the pFedGP framework for medical pathology image classification using the **PathMNIST (MedMNIST)** dataset. We provide a unified pipeline to compare pFedGP against classic baselines (FedAvg, FedPer) with automatic dataset inference, and ensure seamless deployment on modern NVIDIA RTX 50-series GPUs (CUDA 12.1+). We find that pFedGP significantly outperforms baseline methods while achieving well-calibrated predictions in the medical domain.
 
-Instructions
-1. Install Environment (Optimized for RTX 50-series):
+[[Original Paper]](https://arxiv.org/abs/2106.15482)
+[[Original Project-Page]](https://idanachituve.github.io/projects/pFedGP/)
 
-Bash
+### Instructions
+
+**1. Install Environment (Optimized for RTX 50-series):**
+```bash
 conda create -n pfedgp_5080 python=3.10 -y
 conda activate pfedgp_5080
 
@@ -19,6 +23,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 # Install dataset tools and repo dependencies
 pip install medmnist tqdm numpy pandas matplotlib
 pip install -e .
+
 2. Download and Prepare Data:
 To generate the PathMNIST dataset in the required 100-client dictionary format:
 
@@ -51,8 +56,6 @@ python trainer_baselines.py \
     --data-name pathmnist \
     --data-path ../datafolder/medmnist_path_dictionary.pkl \
     --num-steps 500
-Note: You can easily run experiments on other datasets by replacing --data-name pathmnist with cifar10 or cifar100, and adjusting the --data-path accordingly.
-
 Citation
 Please cite the original paper if you want to use the core pFedGP framework in your work:
 
@@ -64,4 +67,3 @@ Code snippet
   volume={34},
   year={2021}
 }
-
