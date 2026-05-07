@@ -199,38 +199,32 @@ def kappa_vec(y):
 # modified from:
 # https://github.com/cornellius-gp/gpytorch/blob/master/gpytorch/utils/cholesky.py
 def psd_safe_cholesky(A, upper=False, out=None, jitter=None):
-    """Compute the Cholesky decomposition of A. If A is only p.s.d, add a small jitter to the diagonal.
-    Args:
-        :attr:`A` (Tensor):
-            The tensor to compute the Cholesky decomposition of
-        :attr:`upper` (bool, optional):
-            See torch.cholesky
-        :attr:`out` (Tensor, optional):
-            See torch.cholesky
-        :attr:`jitter` (float, optional):
-            The jitter to add to the diagonal of A in case A is only p.s.d. If omitted, chosen
-            as 1e-6 (float) or 1e-8 (double)
-    """
     try:
-        L = torch.cholesky(A, upper=upper, out=out)
+        # 尝试使用原生方法
+        L = torch.linalg.cholesky(A, upper=upper, out=out)
         return L
     except RuntimeError as e:
         isnan = torch.isnan(A)
         if isnan.any():
             raise ValueError(
-                f"cholesky_cpu: {isnan.sum().item()} of {A.numel()} elements of the {A.shape} tensor are NaN."
+                f"cholesky_cpu: {isnan.sum().item()} of {A.numel()} elements are NaN."
             )
 
+        # 1. 调大初始 jitter，float32 建议从 1e-5 开始
         if jitter is None:
-            jitter = 1e-6 if A.dtype == torch.float32 else 1e-8
+            jitter = 1e-5 if A.dtype == torch.float32 else 1e-7
+            
         Aprime = A.clone()
         jitter_prev = 0
-        for i in range(5):
+        
+        # 2. 将循环次数从 5 次增加到 10 次，让 jitter 能够覆盖到更大的范围 (甚至到 1.0)
+        for i in range(10): 
             jitter_new = jitter * (10 ** i)
             Aprime.diagonal(dim1=-2, dim2=-1).add_(jitter_new - jitter_prev)
             jitter_prev = jitter_new
             try:
-                L = torch.cholesky(Aprime, upper=upper, out=out)
+                # 兼容旧版本和新版本 PyTorch 的写法
+                L = torch.linalg.cholesky(Aprime, upper=upper, out=out)
                 warnings.warn(
                     f"A not p.d., added jitter of {jitter_new} to the diagonal",
                     RuntimeWarning,
@@ -238,7 +232,14 @@ def psd_safe_cholesky(A, upper=False, out=None, jitter=None):
                 return L
             except RuntimeError:
                 continue
-        raise e
+        
+        # 3. 如果还是崩，最后尝试一种极其激进的方案：强制加上一个更大的常数
+        final_jitter = 0.1
+        Aprime.diagonal(dim1=-2, dim2=-1).add_(final_jitter)
+        try:
+            return torch.linalg.cholesky(Aprime, upper=upper, out=out)
+        except:
+            raise e
 
 
 def print_calibration(ECE_module, out_dir, lbls_vs_target, file_name, color, temp=1.0):
