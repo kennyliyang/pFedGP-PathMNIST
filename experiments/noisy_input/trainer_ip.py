@@ -1,3 +1,8 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath('../../'))
+
 import argparse
 import json
 import logging
@@ -29,7 +34,8 @@ parser.add_argument(
         help='data path'
 )
 parser.add_argument(
-    "--data-name", type=str, default="cifar100", choices=['cifar10', 'cifar100'],
+    "--data-name", type=str, default="cifar100", 
+    choices=['cifar10', 'cifar100', 'pathmnist'], # 可增加MedMNIST的其他数据集
     help="data name"
 )
 
@@ -72,7 +78,7 @@ parser.add_argument('--outputscale-increase', type=str, default='constant',
                     choices=['constant', 'increase', 'decrease'],
                     help='output scale increase/decrease/constant along tree')
 parser.add_argument('--balance-classes', type=str2bool, default=False, help='Balance classes dist. per client in PredIP')
-
+parser.add_argument("--num-classes", type=int, default=None, help="number of classes")
 #############################
 #       General args        #
 #############################
@@ -88,8 +94,21 @@ set_logger()
 set_seed(args.seed)
 
 device = get_device(cuda=int(args.gpus) >= 0, gpus=args.gpus)
-num_classes = 10 if args.data_name == 'cifar10' else 100
-classes_per_client = 10
+
+# 预设数据集的默认类别数
+DEFAULT_CLASSES = {'cifar10': 10, 'cifar100': 100, 'pathmnist': 9}
+
+# 优先使用用户手动传入的类别数
+if args.num_classes is not None:
+    num_classes = args.num_classes
+else:
+    # 否则根据数据集名称自动匹配，如果找不到则抛出明确报错
+    num_classes = DEFAULT_CLASSES.get(args.data_name)
+    if num_classes is None:
+        raise ValueError(f" 未知的数据集 '{args.data_name}'，请明确传入 --num-classes 参数")
+
+# 客户端类别数与总类别数一致（防止 pFedGP 初始化错误）
+classes_per_client = num_classes
 
 exp_name = f'pFedGP-IP-Noisy_method_{args.method}_data-name_{args.data_name}_seed_{args.seed}_lr_{args.lr}_' \
            f'num_steps_{args.num_steps}_inner_steps_{args.inner_steps}_num_inducing_{args.num_inducing_points}' \
@@ -136,6 +155,7 @@ def eval_model(global_model, GPs, X_bar, clients, split):
 
             running_loss += loss.item()
             running_correct += pred.argmax(1).eq(Y_test).sum().item()
+            print(f"Pred Sample: {pred.argmax(1)[:5]}, Real Label: {Y_test[:5]}")
             running_samples += len(Y_test)
 
             is_first_iter = False

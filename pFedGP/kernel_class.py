@@ -19,7 +19,7 @@ class GPModel(nn.Module):
         x2 = F.normalize(x2)
 
         mean_x = self.mean_module(x2)
-        covar_x = self.covar_module(x1, x2).add_jitter(jitter_val=self.jitter_val).evaluate()
+        covar_x = self.covar_module(x1, x2).add_jitter(jitter_val=self.jitter_val).to_dense()
         return mean_x, covar_x
 
     def _set_params(self, outputscale=8., lengthscale=1.):
