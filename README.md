@@ -25,21 +25,21 @@ pip install medmnist tqdm numpy pandas matplotlib
 pip install -e .
 ```
 
-2. Download and Prepare Data:
+**2. Download and Prepare Data:**
 To generate the PathMNIST dataset in the required 100-client dictionary format:
-
 ```Bash
 cd experiments/datafolder/
 python generate_medmnist_pkl.py
-(Optional) To download noisy CIFAR-10 or CIFAR-100:
 ```
+（You can modify the dataset name in generate_medmnist_pkl.py to download other Medmnist datasets）
 
+To download noisy CIFAR-10 or CIFAR-100:
 ```Bash
 cd experiments/datafolder/noisy_cifar10
 python download_noisy_data.py
 ```
 
-3. Run Experiments:
+**3. Run Experiments:**
 All training scripts are unified under the experiments/noisy_input directory. The codebase features automatic class inference based on the --data-name (e.g., pathmnist: 9, cifar10: 10).
 
 To run pFedGP variants (pFedGP-compute or pFedGP-data):
@@ -63,7 +63,7 @@ python trainer_baselines.py \
     --num-steps 500
 ```
 
-Citation
+**Citation**
 Please cite the original paper if you want to use the core pFedGP framework in your work:
 ```
 Code snippet
