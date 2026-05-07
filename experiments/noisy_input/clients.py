@@ -20,8 +20,8 @@ class NoisyClients:
             self.train_loaders.append(
                 DataLoader(
                     TensorDataset(
-                        torch.from_numpy(data['train']['data'].astype(np.float32) / 255.),
-                        torch.from_numpy(data['train']['label'])
+                        torch.tensor(data['train']['data'].astype(np.float32) / 255.),
+                        torch.tensor(data['train']['label'])
                     ),
                     shuffle=True,
                     batch_size=batch_size
@@ -32,8 +32,8 @@ class NoisyClients:
             self.val_loaders.append(
                 DataLoader(
                     TensorDataset(
-                        torch.from_numpy(data['val']['data'].astype(np.float32) / 255.),
-                        torch.from_numpy(data['val']['label'])
+                        torch.tensor(data['val']['data'].astype(np.float32) / 255.),
+                        torch.tensor(data['val']['label'])
                     ),
                     shuffle=False,
                     batch_size=batch_size
@@ -44,8 +44,8 @@ class NoisyClients:
             self.test_loaders.append(
                 DataLoader(
                     TensorDataset(
-                        torch.from_numpy(data['test']['data'].astype(np.float32) / 255.),
-                        torch.from_numpy(data['test']['label'])
+                        torch.tensor(data['test']['data'].astype(np.float32) / 255.),
+                        torch.tensor(data['test']['label'])
                     ),
                     shuffle=False,
                     batch_size=batch_size
